@@ -50,6 +50,17 @@ app.use(express.json()); // Middleware untuk parsing JSON
 
 app.get("/favicon.ico", (req, res) => res.status(204).end());
 
+
+// ================= test db ke railway ===========
+app.get("/test-db", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT NOW() AS time");
+    res.json({ success: true, time: rows[0].time });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ===== random soal ============
 app.get("/api/get-soal", async (req, res) => {
   try {
