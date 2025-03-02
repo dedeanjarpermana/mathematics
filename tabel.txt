@@ -1,0 +1,38 @@
+UPDATE tbl_soal
+SET soal = 'Sebagai negara hukum, Indonesia menerapkan prinsip supremasi hukum, di mana setiap warga negara, tanpa terkecuali, harus tunduk pada hukum yang berlaku. Namun, dalam realitasnya, masih banyak ditemukan kasus pelanggaran hukum, baik oleh masyarakat umum maupun oleh pejabat negara. Menurut Anda, apa saja faktor yang menyebabkan masih maraknya pelanggaran hukum di Indonesia, dan bagaimana solusi yang dapat diterapkan untuk meningkatkan kesadaran hukum di kalangan masyarakat?'
+WHERE id_soal = 's15';
+
+
+ALTER TABLE tbl_jawaban_siswa
+ADD id_soal varchar(255);
+
+select * from tbl_jawaban_siswa;
+select * from tbl_soal;
+ALTER TABLE tbl_jawaban_siswa
+RENAME COLUMN jawaban to jawaban_siswa;
+
+
+ALTER TABLE tbl_jawaban_siswa 
+MODIFY COLUMN id_jawaban_siswa INT AUTO_INCREMENT PRIMARY KEY;
+
+ALTER TABLE tbl_jawaban_siswa DROP PRIMARY KEY;
+
+DELETE FROM tbl_jawaban_siswa;
+
+DROP TABLE tbl_jawaban_siswa;
+
+CREATE TABLE tbl_jawaban_siswa (
+    id_jawaban_siswa int AUTO_INCREMENT PRIMARY KEY,
+    jawaban_siswa varchar(255),
+    id_soal varchar(255),
+    hasil varchar(255)
+);
+
+CREATE TABLE tbl_users (
+    nama_lengkap VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    username VARCHAR(50) PRIMARY KEY,
+    kelas ENUM('7', '8', '9', '10', '11', '12') NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('siswa', 'admin') DEFAULT 'siswa'
+);
