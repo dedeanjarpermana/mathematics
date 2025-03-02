@@ -27,7 +27,8 @@ const {
   generateIDMenabung } = require('./generate_id')
 
 // const PORT = process.env.PORT || 8000;  
-const PORT = process.env.PORT || 3306;
+const PORT = process.env.PORT;
+
 
 const app = express();
 
@@ -45,6 +46,8 @@ app.get('/', (req, res) => {
 
 app.use(express.json()); // Middleware untuk parsing JSON
 
+
+app.get("/favicon.ico", (req, res) => res.status(204).end());
 
 // ===== random soal ============
 app.get("/api/get-soal", async (req, res) => {
@@ -182,6 +185,14 @@ app.use((req, res, next) => {
 // Swagger setup
 swaggerSetup(app);
 
+// untuk di lokal
+// app.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`);
+// });
+
+
+
+// untuk production
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
