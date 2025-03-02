@@ -11,7 +11,7 @@ const jwt = require('jsonwebtoken');
 const moment = require("moment"); // Gunakan moment.js untuk format tanggal
 
 const authRoutes = require('./routes/auth'); // Impor file auth.js
-const register = require('../backend/page/register')
+
 
 
 
