@@ -27,7 +27,8 @@ const {
   generateIDMenabung } = require('./generate_id')
 
 // const PORT = process.env.PORT || 8000;  
-const PORT = process.env.PORT || 3000; // Tambahkan fallback port
+// const PORT = process.env.PORT || 3000; // Tambahkan fallback port
+const PORT = process.env.PORT 
 
 
 
