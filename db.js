@@ -1,7 +1,7 @@
-const mysql = require('mysql2');
+// const mysql = require('mysql2'); ga dipake dulu
 
 
-// const mysql = require("mysql2/promise"); // Gunakan versi promise
+const mysql = require("mysql2/promise"); // Gunakan versi promise
 require("dotenv").config();
 
 const db = mysql.createPool({
@@ -19,7 +19,7 @@ const db = mysql.createPool({
 
 
 
-// Buat koneksi pool
+// // Buat koneksi pool
 // const db = mysql.createPool({
 //   host: "localhost",      // Ganti dengan host database Anda
 //   user: "root",           // Ganti dengan username database Anda

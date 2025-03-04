@@ -1,5 +1,4 @@
-// const mysql = require("mysql2");
-const mysql = require("mysql2/promise"); // Gunakan versi promise
+const mysql = require("mysql2");
 // const bcrypt = require("bcryptjs");
 // const bodyParser = require("body-parser");
 // const validator = require("validator");
@@ -27,10 +26,10 @@ const {
   generateTransaksiIDCicilan, 
   generateIDMenabung } = require('./generate_id')
 
-// const PORT = process.env.PORT || 8000;  
+const PORT = process.env.PORT || 8000;  
 
 //  ini buat production
-const PORT = process.env.PORT || 3000; // Tambahkan fallback port
+// const PORT = process.env.PORT || 3000; // Tambahkan fallback port
 
 
 
@@ -51,14 +50,13 @@ app.get('/', (req, res) => {
 
 app.use(express.json()); // Middleware untuk parsing JSON
 
-(async () => {
-  try {
-    const [rows] = await db.query("SELECT NOW() AS time");
-    console.log("✅ Database connected! Server time:", rows[0].time);
-  } catch (error) {
-    console.error("❌ Database connection failed:", error.message);
+db.query("SELECT NOW()", (err, result) => {
+  if (err) {
+    console.error("❌ Database connection failed:", err.message);
+  } else {
+    console.log("✅ Database connected! Server time:", result[0]);
   }
-})();
+});
 
 
 
@@ -82,34 +80,36 @@ app.get("/test-db", async (req, res) => {
 // ===== random soal ============
 app.get("/api/get-soal", async (req, res) => {
   try {
+    
+
     const [row_get_soal] = await db.query(
       `SELECT * FROM tbl_soal ORDER BY RAND() LIMIT 5`
+     
     );
 
     if (row_get_soal.length === 0) {
-      return res.status(404).json({ message: "Soal tidak ditemukan." });
+      return res.status(404).json({ message: "User profile not found" });
     }
 
     res.json(row_get_soal);
   } catch (error) {
-    console.error("❌ Gagal mengambil soal:", error);
+    console.error("Database query failed:", error.message);
     res.status(500).json({ error: error.message });
   }
 });
-
 
 
 // =====================
 app.post("/api/simpan-jawaban", async (req, res) => {
   try {
     const jawabanSiswa = req.body;
-    let benar = 0, salah = 0;
+
+    let benar = 0;
+    let salah = 0;
 
     for (const jawaban of jawabanSiswa) {
-      const [rows] = await db.query(
-        "SELECT jawaban FROM tbl_soal WHERE id_soal = ?", 
-        [jawaban.id_soal]
-      );
+      // Ambil jawaban benar dari database
+      const [rows] = await db.query("SELECT jawaban FROM tbl_soal WHERE id_soal = ?", [jawaban.id_soal]);
 
       if (rows.length === 0) continue;
 
@@ -119,6 +119,7 @@ app.post("/api/simpan-jawaban", async (req, res) => {
       if (hasil === "benar") benar++;
       else salah++;
 
+      // Simpan jawaban siswa ke database
       await db.query(
         "INSERT INTO tbl_jawaban_siswa (id_soal, jawaban_siswa, hasil, nama_siswa) VALUES (?, ?, ?, ?)",
         [jawaban.id_soal, jawaban.jawaban_siswa, hasil, jawaban.nama_siswa]
@@ -127,12 +128,10 @@ app.post("/api/simpan-jawaban", async (req, res) => {
 
     res.status(201).json({ message: "Jawaban berhasil disimpan!", benar, salah });
   } catch (error) {
-    console.error("❌ Gagal menyimpan jawaban:", error);
+    console.error("Gagal menyimpan jawaban:", error);
     res.status(500).json({ message: "Terjadi kesalahan server." });
   }
 });
-
-
 
 // lihat hasil jawaban siswa 
 app.get("/api/jawaban-siswa", async (req, res) => {
@@ -143,22 +142,22 @@ app.get("/api/jawaban-siswa", async (req, res) => {
 
     res.json(rows);
   } catch (error) {
-    console.error("❌ Gagal mengambil data:", error);
+    console.error("Gagal mengambil data:", error);
     res.status(500).json({ message: "Terjadi kesalahan server." });
   }
 });
-
-
 
 // =========================== tambah soal =============================================================
 app.post("/api/tambah-soal", async (req, res) => {
   try {
     const { id_soal, soal, jawaban } = req.body;
 
+    // **🔍 Validasi Data**
     if (!id_soal || !soal || !jawaban) {
       return res.status(400).json({ message: "Semua field harus diisi!" });
     }
 
+    // **🔹 Masukkan Data ke Database**
     await db.query(
       "INSERT INTO tbl_soal (id_soal, soal, jawaban) VALUES (?, ?, ?)",
       [id_soal, soal, jawaban]
@@ -166,11 +165,10 @@ app.post("/api/tambah-soal", async (req, res) => {
 
     res.status(201).json({ message: "Soal berhasil ditambahkan!" });
   } catch (error) {
-    console.error("❌ Gagal menambahkan soal:", error);
+    console.error("Gagal menambahkan soal:", error);
     res.status(500).json({ message: "Terjadi kesalahan server." });
   }
 });
-
 
 
 // lihat soal oleh admin
@@ -190,6 +188,7 @@ app.delete("/api/soal/:id_soal", async (req, res) => {
   try {
     const { id_soal } = req.params;
 
+    // Hapus soal dari database
     const [result] = await db.query("DELETE FROM tbl_soal WHERE id_soal = ?", [id_soal]);
 
     if (result.affectedRows === 0) {
@@ -198,10 +197,11 @@ app.delete("/api/soal/:id_soal", async (req, res) => {
 
     res.json({ message: "Soal berhasil dihapus!" });
   } catch (error) {
-    console.error("❌ Gagal menghapus soal:", error);
+    console.error("Gagal menghapus soal:", error);
     res.status(500).json({ message: "Terjadi kesalahan server." });
   }
 });
+
 
 
 app.use((req, res, next) => {
@@ -214,13 +214,13 @@ app.use((req, res, next) => {
 swaggerSetup(app);
 
 // untuk di lokal
-// app.listen(PORT, () => {
-//   console.log(`Server running on port ${PORT}`);
-// });
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
 
 
 // untuk production
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// app.listen(PORT, '0.0.0.0', () => {
+//   console.log(`Server running on port ${PORT}`);
+// });

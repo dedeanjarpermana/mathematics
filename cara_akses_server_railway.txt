@@ -2,4 +2,10 @@ buka cmd:
 kemudian arahkan (CD) ke folder yang sedang kita deploy
 setelah masuk folder, ketik railway login
 ikuti langkah yang dari cmd maupun yang dari website railway
+type: railway link
 setelah itu pilih servis/ project yang  mau dilihat lihat 
+
+
+
+periksa log: 
+railway logs
