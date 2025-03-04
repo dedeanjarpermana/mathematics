@@ -15,10 +15,7 @@ const db = mysql.createPool({
   queueLimit: 0
 });
 
-// Cek koneksi saat aplikasi mulai
-db.getConnection()
-  .then(() => console.log("✅ Database Connected!"))
-  .catch((err) => console.error("❌ Database Connection Failed:", err));
+
 
 
 
