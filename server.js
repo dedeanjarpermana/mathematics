@@ -47,8 +47,19 @@ app.get('/', (req, res) => {
 
 app.use(express.json()); // Middleware untuk parsing JSON
 
+db.query("SELECT NOW()", (err, result) => {
+  if (err) {
+    console.error("❌ Database connection failed:", err.message);
+  } else {
+    console.log("✅ Database connected! Server time:", result[0]);
+  }
+});
+
+
 
 app.get("/favicon.ico", (req, res) => res.status(204).end());
+
+
 
 
 // ================= test db ke railway ===========
